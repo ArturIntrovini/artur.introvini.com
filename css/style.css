@@ -83,11 +83,6 @@ nav {
   height: 60px;
 }
 
-.nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 .nav-brand {
   font-family: var(--mono);
@@ -219,6 +214,13 @@ main {
   flex: 1;
   height: 1px;
   background: var(--border);
+}
+
+.about-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 650px;
+  line-height: 1.8;
 }
 
 /* SKILLS */
@@ -358,43 +360,6 @@ main {
 }
 
 /* CONTACT */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-}
-
-.contact-info p {
-  color: var(--muted);
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-}
-
-.contact-links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.contact-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-  padding: 0.75rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.contact-link:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  text-decoration: none;
-}
-
 .contact-form { display: flex; flex-direction: column; gap: 1rem; }
 .contact-form .btn {
   align-self: flex-end;
@@ -460,15 +425,6 @@ main {
 
 .form-group textarea { min-height: 140px; }
 
-/* FOOTER */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 1.5rem 2rem;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--muted);
-  font-family: var(--mono);
-}
 
 /* PAGE HEADER */
 .page-header { margin-bottom: 3rem; }
@@ -477,7 +433,6 @@ footer {
 
 /* RESPONSIVE */
 @media (max-width: 640px) {
-  .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
   .nav-links { display: none; }
   .nav-inner { padding: 0 1.25rem; }
   main { padding: 2.5rem 1.25rem; }
@@ -531,6 +486,7 @@ footer {
   border-radius: var(--radius);
   color: var(--muted);
   cursor: pointer;
+  touch-action: manipulation;
   display: grid;
   place-items: center;
   width: 36px;
@@ -549,7 +505,7 @@ footer {
 .icon-moon { transform: translateY(-1px); }
 .icon-current { opacity: 1; }
 .icon-other { opacity: 0; }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .theme-toggle:hover .icon-current { opacity: 0; }
   .theme-toggle:hover .icon-other { opacity: 1; }
 }
@@ -564,6 +520,7 @@ footer {
   border-radius: var(--radius);
   color: var(--muted);
   cursor: pointer;
+  touch-action: manipulation;
   width: 36px;
   height: 36px;
   transition: border-color 0.15s, color 0.15s;
@@ -593,7 +550,7 @@ footer {
 }
 .mobile-menu a {
   display: block;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   color: var(--muted);
   font-size: 0.9rem;
   border-bottom: 1px solid var(--border);
