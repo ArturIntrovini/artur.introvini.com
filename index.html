@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artur Introvini</title>
   <meta name="description" content="Software Engineer.">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=8">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.classList.add(t);}());</script>
 </head>
@@ -27,10 +27,10 @@
         </svg>
       </button>
       <button id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode">
-        <svg class="icon-sun icon-current" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="icon-sun icon-other" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707m12.728 0-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/>
         </svg>
-        <svg class="icon-moon icon-other" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="icon-moon icon-current" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
         </svg>
       </button>
@@ -146,7 +146,7 @@
 
     <div class="resume-actions">
       <a href="assets/resume.pdf" class="btn btn-primary" download>Download PDF</a>
-      <a href="assets/resume.pdf" class="btn btn-secondary" target="_blank">View PDF</a>
+      <a href="assets/resume.pdf" class="btn btn-secondary" target="_blank" rel="noopener">View PDF</a>
     </div>
 
     <div class="resume-section">
@@ -224,7 +224,7 @@
 
     <section class="section">
       <h2 class="section-title">Get in touch</h2>
-      <form class="contact-form" onsubmit="return false;">
+      <form class="contact-form" id="contact-form">
         <div class="form-group">
           <label for="contact-name">Name</label>
           <input type="text" id="contact-name" name="name" autocomplete="name" placeholder="Your name">
@@ -249,21 +249,38 @@
 </main>
 
 <script>
-  function navigate() {
-    var hash = location.hash || '#about';
-    document.querySelectorAll('.page').forEach(function(p) { p.hidden = true; });
-    var target = document.querySelector(hash);
-    if (target) { target.hidden = false; }
+  var PAGES = ['#about', '#projects', '#resume', '#contact'];
+
+  function closeMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var burger = document.getElementById('burger');
+    if (menu) menu.hidden = true;
+    if (burger) {
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Open navigation menu');
+    }
+  }
+
+  function updateActive(hash) {
     document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(function(a) {
       var active = a.getAttribute('href') === hash;
       a.classList.toggle('active', active);
-      if (active) { a.setAttribute('aria-current', 'page'); }
-      else { a.removeAttribute('aria-current'); }
+      if (active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
     });
-    var menu = document.getElementById('mobile-menu');
-    var burger = document.getElementById('burger');
-    if (menu) { menu.hidden = true; }
-    if (burger) { burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', 'Open navigation menu'); }
+  }
+
+  function navigate() {
+    var hash = location.hash;
+    if (PAGES.indexOf(hash) === -1) {
+      if (document.querySelector('.page:not([hidden])')) return;
+      hash = '#about';
+    }
+    document.querySelectorAll('.page').forEach(function(p) { p.hidden = true; });
+    var target = document.querySelector(hash);
+    if (target) target.hidden = false;
+    updateActive(hash);
+    closeMenu();
     window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', navigate);
@@ -282,8 +299,10 @@
     btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
     var sun = btn.querySelector('.icon-sun');
     var moon = btn.querySelector('.icon-moon');
-    sun.className = 'icon-sun ' + (dark ? 'icon-other' : 'icon-current');
-    moon.className = 'icon-moon ' + (dark ? 'icon-current' : 'icon-other');
+    sun.classList.toggle('icon-current', dark);
+    sun.classList.toggle('icon-other', !dark);
+    moon.classList.toggle('icon-current', !dark);
+    moon.classList.toggle('icon-other', dark);
   }
 
   function toggleTheme() {
@@ -303,8 +322,17 @@
     burger.setAttribute('aria-label', willOpen ? 'Close navigation menu' : 'Open navigation menu');
   }
 
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-  document.getElementById('burger').addEventListener('click', toggleMenu);
+  document.getElementById('theme-toggle').addEventListener('click', function(e) {
+    toggleTheme();
+    if (e.detail > 0) this.blur();
+  });
+  document.getElementById('burger').addEventListener('click', function(e) {
+    toggleMenu();
+    if (e.detail > 0) this.blur();
+  });
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+  });
   updateThemeButton();
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
     if (!localStorage.getItem('theme')) updateThemeButton();

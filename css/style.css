@@ -79,10 +79,9 @@ nav {
   padding: 0 2rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
   height: 60px;
 }
-
 
 .nav-brand {
   font-family: var(--mono);
@@ -97,6 +96,7 @@ nav {
   display: flex;
   gap: 2rem;
   list-style: none;
+  margin-left: auto;
 }
 
 .nav-links a {
@@ -165,7 +165,7 @@ main {
   border-radius: var(--radius);
   font-size: 0.9rem;
   font-weight: 500;
-  transition: all 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
   cursor: pointer;
 }
 
@@ -423,7 +423,6 @@ main {
 
 .form-group textarea { min-height: 100px; }
 
-
 /* PAGE HEADER */
 .page-header { margin-bottom: 1.5rem; }
 .page-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -492,10 +491,6 @@ main {
   flex-shrink: 0;
   transition: border-color 0.15s, color 0.15s;
 }
-.theme-toggle:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 .theme-toggle svg {
   grid-area: 1 / 1;
   transition: opacity 0.15s;
@@ -504,6 +499,10 @@ main {
 .icon-current { opacity: 1; }
 .icon-other { opacity: 0; }
 @media (hover: hover) and (pointer: fine) {
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
   .theme-toggle:hover .icon-current { opacity: 0; }
   .theme-toggle:hover .icon-other { opacity: 1; }
 }
@@ -521,11 +520,14 @@ main {
   touch-action: manipulation;
   width: 36px;
   height: 36px;
+  margin-left: auto;
   transition: border-color 0.15s, color 0.15s;
 }
-.burger:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+  .burger:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
 }
 @media (min-width: 641px) {
   .burger { display: none; }
@@ -533,9 +535,14 @@ main {
 
 /* MOBILE MENU */
 .mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   border-top: 1px solid var(--border);
   background: var(--nav-bg);
   backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 .mobile-menu[hidden] { display: none; }
 .mobile-menu ul {
