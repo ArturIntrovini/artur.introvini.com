@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Artur Introvini - Software Engineer</title>
-  <meta name="description" content="Software Engineer. Building things that matter.">
+  <title>Artur Introvini</title>
+  <meta name="description" content="Software Engineer.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
@@ -12,60 +12,209 @@
 
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="nav-brand">artur<span>.</span>dev</a>
+    <a href="#about" class="nav-brand">artur<span>.</span>dev</a>
     <ul class="nav-links">
-      <li><a href="index.html" class="active">About</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="resume.html">Resume</a></li>
-      <li><a href="contact.html">Contact</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#resume">Resume</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
   </div>
 </nav>
 
 <main>
-  <section class="hero">
-    <p class="hero-label">// hello world</p>
-    <h1>Artur Introvini</h1>
-    <h2>Software Engineer</h2>
-    <p>
-      I build reliable, scalable software. Focused on clean architecture, pragmatic solutions,
-      and shipping things that actually work.
-    </p>
-    <div class="btn-group">
-      <a href="projects.html" class="btn btn-primary">View Projects</a>
-      <a href="resume.html" class="btn btn-secondary">Resume</a>
-    </div>
-  </section>
 
-  <section class="section">
-    <h2 class="section-title">About</h2>
-    <p style="color: var(--muted); font-size: 0.95rem; max-width: 650px; line-height: 1.8;">
-      Software engineer with a passion for building products that solve real problems.
-      I enjoy working across the stack, from designing APIs to shipping UIs.
-      When not coding, I'm exploring new tools or diving into side projects.
-      <!-- Update this with your actual bio -->
-    </p>
-  </section>
+  <!-- ABOUT -->
+  <div id="about" class="page">
+    <section class="hero">
+      <p class="hero-label">// hello world</p>
+      <h1>Artur Introvini</h1>
+      <h2>Software Engineer</h2>
+      <p>
+        I build reliable, scalable software. Focused on clean architecture, pragmatic solutions,
+        and shipping things that actually work.
+      </p>
+      <div class="btn-group">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="#resume" class="btn btn-secondary">Resume</a>
+      </div>
+    </section>
 
-  <section class="section">
-    <h2 class="section-title">Skills</h2>
-    <div class="skills-grid">
-      <!-- Update with your actual skills -->
-      <div class="skill-tag">Python</div>
-      <div class="skill-tag">JavaScript</div>
-      <div class="skill-tag">TypeScript</div>
-      <div class="skill-tag">React</div>
-      <div class="skill-tag">Node.js</div>
-      <div class="skill-tag">SQL</div>
-      <div class="skill-tag">Docker</div>
-      <div class="skill-tag">Git</div>
-      <div class="skill-tag">AWS</div>
-      <div class="skill-tag">Linux</div>
+    <section class="section">
+      <h2 class="section-title">About</h2>
+      <p style="color: var(--muted); font-size: 0.95rem; max-width: 650px; line-height: 1.8;">
+        Software engineer with a passion for building products that solve real problems.
+        I enjoy working across the stack, from designing APIs to shipping UIs.
+        When not coding, I'm exploring new tools or diving into side projects.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Skills</h2>
+      <div class="skills-grid">
+        <div class="skill-tag">Python</div>
+        <div class="skill-tag">JavaScript</div>
+        <div class="skill-tag">TypeScript</div>
+        <div class="skill-tag">React</div>
+        <div class="skill-tag">Node.js</div>
+        <div class="skill-tag">SQL</div>
+        <div class="skill-tag">Docker</div>
+        <div class="skill-tag">Git</div>
+        <div class="skill-tag">AWS</div>
+        <div class="skill-tag">Linux</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="projects" class="page" hidden>
+    <div class="page-header">
+      <h1>Projects</h1>
+      <p>Things I've built or contributed to.</p>
     </div>
-  </section>
+
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <h3><a href="#">Project Name</a></h3>
+        <p>Short description of what this project does and why it's interesting.</p>
+        <div class="tag-list">
+          <span class="tag">Python</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">PostgreSQL</span>
+        </div>
+        <div class="project-links">
+          <a href="#">GitHub</a>
+          <a href="#">Live Demo</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h3><a href="#">Project Name</a></h3>
+        <p>Short description of what this project does and why it's interesting.</p>
+        <div class="tag-list">
+          <span class="tag">React</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">Node.js</span>
+        </div>
+        <div class="project-links">
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h3><a href="#">Project Name</a></h3>
+        <p>Short description of what this project does and why it's interesting.</p>
+        <div class="tag-list">
+          <span class="tag">Go</span>
+          <span class="tag">Docker</span>
+          <span class="tag">AWS</span>
+        </div>
+        <div class="project-links">
+          <a href="#">GitHub</a>
+          <a href="#">Live Demo</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESUME -->
+  <div id="resume" class="page" hidden>
+    <div class="page-header">
+      <h1>Resume</h1>
+      <p>Software Engineer</p>
+    </div>
+
+    <div class="resume-actions">
+      <a href="assets/resume.pdf" class="btn btn-primary" download>Download PDF</a>
+      <a href="assets/resume.pdf" class="btn btn-secondary" target="_blank">View PDF</a>
+    </div>
+
+    <div class="resume-section">
+      <h3>Experience</h3>
+
+      <div class="resume-entry">
+        <div class="resume-entry-header">
+          <h4>Software Engineer &mdash; Company Name</h4>
+          <span class="meta">Jan 2023 &mdash; Present</span>
+        </div>
+        <span class="meta">City, State / Remote</span>
+        <ul>
+          <li>Describe a key achievement with measurable impact.</li>
+          <li>Describe another contribution or project you led.</li>
+        </ul>
+      </div>
+
+      <div class="resume-entry">
+        <div class="resume-entry-header">
+          <h4>Software Engineer &mdash; Previous Company</h4>
+          <span class="meta">Jun 2021 &mdash; Dec 2022</span>
+        </div>
+        <span class="meta">City, State / Remote</span>
+        <ul>
+          <li>Key achievement or responsibility.</li>
+          <li>Another key contribution.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="resume-section">
+      <h3>Education</h3>
+      <div class="resume-entry">
+        <div class="resume-entry-header">
+          <h4>B.S. Computer Science &mdash; University Name</h4>
+          <span class="meta">2017 &mdash; 2021</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="resume-section">
+      <h3>Skills</h3>
+      <div class="resume-entry">
+        <ul>
+          <li><strong>Languages:</strong> Python, JavaScript, TypeScript, Go, SQL</li>
+          <li><strong>Frameworks:</strong> React, Node.js, FastAPI, Django</li>
+          <li><strong>Infrastructure:</strong> AWS, Docker, Kubernetes, Terraform</li>
+          <li><strong>Tools:</strong> Git, PostgreSQL, Redis, GitHub Actions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div id="contact" class="page" hidden>
+    <div class="page-header">
+      <h1>Contact</h1>
+      <p>Open to opportunities and interesting conversations.</p>
+    </div>
+
+    <div class="contact-links">
+      <a href="https://github.com/ArturIntrovini" target="_blank" rel="noopener" class="contact-link">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        github.com/ArturIntrovini
+      </a>
+    </div>
+  </div>
+
 </main>
 
 <footer></footer>
+
+<script>
+  function navigate() {
+    var hash = location.hash || '#about';
+    document.querySelectorAll('.page').forEach(function(p) { p.hidden = true; });
+    var target = document.querySelector(hash);
+    if (target) { target.hidden = false; }
+    document.querySelectorAll('.nav-links a').forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === hash);
+    });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', navigate);
+  navigate();
+</script>
 
 </body>
 </html>
