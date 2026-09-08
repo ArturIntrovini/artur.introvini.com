@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mario Tennis GBC — Level-Up RE | Artur Introvini</title>
+  <meta name="description" content="Reverse engineered stat/level-up system for Mario Tennis GBC. Includes interactive stat calculator and build optimizer.">
+  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.classList.add(t);}());</script>
+  <style>
+    .project-page { max-width: var(--max-w); margin: 0 auto; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); text-decoration: none; }
+
+    .project-intro { margin-bottom: 2.5rem; }
+    .project-intro h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; margin-bottom: 0.5rem; }
+    .project-intro .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem; }
+    .project-intro p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
+
+    .tool-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    .tool-tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tool-tab:hover { color: var(--text); }
+    .tool-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tool-panel { display: none; }
+    .tool-panel.active { display: block; }
+
+    /* CONTROLS */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-end;
+    }
+    .ctrl-group { display: flex; flex-direction: column; gap: 0.3rem; min-width: 120px; }
+    .ctrl-group label {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .ctrl-group select,
+    .ctrl-group input[type="number"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.75rem;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      min-width: 120px;
+    }
+    .ctrl-group select:focus,
+    .ctrl-group input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .ctrl-group input[type="number"] { width: 80px; text-align: center; }
+
+    .pts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-end;
+    }
+    .pts-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .pts-group label {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pts-spin   label { color: #60a5fa; }
+    .pts-power  label { color: #f87171; }
+    .pts-ctrl   label { color: #a78bfa; }
+    .pts-speed  label { color: #34d399; }
+    .pts-spin   input { border-color: #60a5fa44; }
+    .pts-power  input { border-color: #f8717144; }
+    .pts-ctrl   input { border-color: #a78bfa44; }
+    .pts-speed  input { border-color: #34d39944; }
+
+    .level-badge {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 0.45rem 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      align-self: flex-end;
+      white-space: nowrap;
+    }
+    .level-badge span { color: var(--accent); font-weight: 600; }
+
+    /* STAT TABLE */
+    .stat-table-wrap { overflow-x: auto; }
+    table.stat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .stat-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-table td {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid var(--surface-2);
+    }
+    .stat-table tr:last-child td { border-bottom: none; }
+    .stat-table .row-spin:hover td    { background: rgba(96, 165, 250, 0.14); }
+    .stat-table .row-power:hover td   { background: rgba(248, 113, 113, 0.14); }
+    .stat-table .row-control:hover td { background: rgba(167, 139, 250, 0.14); }
+    .stat-table .row-speed:hover td   { background: rgba(52, 211, 153, 0.14); }
+
+    .cat-spin    { color: #60a5fa; }
+    .cat-power   { color: #f87171; }
+    .cat-control { color: #a78bfa; }
+    .cat-speed   { color: #34d399; }
+
+    .stat-bar-cell { min-width: 140px; }
+    .stat-bar-wrap { display: flex; align-items: center; gap: 0.5rem; }
+    .stat-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--surface-2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent);
+      transition: width 0.2s;
+    }
+    .stat-bar-fill.maxed { background: #f59e0b; }
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 1.5ch;
+      text-align: right;
+    }
+    .stat-val.maxed { color: #f59e0b; }
+
+    .delta-cell {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+    .delta-pos { color: #34d399; }
+    .delta-neg { color: #f87171; }
+    .delta-neu { color: var(--muted); }
+
+    /* OPTIMIZER */
+    .optimizer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-end;
+    }
+
+    .opt-result {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .opt-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .opt-result-header h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: var(--mono);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .opt-allocation {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    .opt-allocation .alloc-item { display: flex; flex-direction: column; gap: 0.15rem; }
+    .opt-allocation .alloc-label { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); }
+    .opt-allocation .alloc-val { font-weight: 600; }
+
+    .run-btn {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      align-self: flex-end;
+    }
+    .run-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .opt-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .weights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .weight-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .weight-item label {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .weight-item input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .weight-item .weight-val {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-align: right;
+    }
+
+    .obj-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .obj-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+      font-family: var(--mono);
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .obj-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .obj-btn.active {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border-color: var(--accent);
+    }
+
+    /* NOTES */
+    .notes-block {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .notes-block strong { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .controls-row, .pts-row, .optimizer-controls { gap: 0.75rem; }
+      .ctrl-group select, .ctrl-group input[type="number"] { min-width: 100px; }
+    }
+
+    /* CHARACTER'S BEST */
+    .char-best-section { margin-bottom: 2rem; }
+    .char-best-section > h3 { font-size: 1rem; font-weight: 600; margin-bottom: .75rem; }
+    .char-best-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 700px) { .char-best-cols { grid-template-columns: 1fr; } }
+    .char-best-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+    }
+    .char-best-card h4 {
+      font-size: .8rem; font-weight: 600; font-family: var(--mono);
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--accent); margin-bottom: .5rem;
+    }
+    .char-best-equip { font-size: .85rem; color: var(--muted); margin-bottom: .4rem; }
+    .char-best-alloc {
+      font-size: .8rem; font-family: var(--mono); margin-bottom: .4rem;
+      display: flex; gap: .5rem; flex-wrap: wrap;
+    }
+    .char-best-score { font-family: var(--mono); font-size: .75rem; color: var(--muted); margin-bottom: .75rem; }
+
+    /* Stat row tinting by category */
+    .row-spin    { background: rgba(96, 165, 250, 0.07); }
+    .row-power   { background: rgba(248, 113, 113, 0.07); }
+    .row-control { background: rgba(167, 139, 250, 0.07); }
+    .row-speed   { background: rgba(52, 211, 153, 0.07); }
+
+    /* Substat name — lighter shade of category color */
+    .sub-spin    { color: #93c5fd; }
+    .sub-power   { color: #fca5a5; }
+    .sub-control { color: #c4b5fd; }
+    .sub-speed   { color: #6ee7b7; }
+    html.light .sub-spin    { color: #1e40af; }
+    html.light .sub-power   { color: #991b1b; }
+    html.light .sub-control { color: #5b21b6; }
+    html.light .sub-speed   { color: #065f46; }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">artur<span>.</span>introvini</a>
+    <ul class="nav-links" role="list">
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+    <button id="burger" class="burger" aria-label="Open navigation menu" aria-expanded="false">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode">
+      <svg class="icon-sun icon-other" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707m12.728 0-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/>
+      </svg>
+      <svg class="icon-moon icon-current" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
+      </svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    <ul role="list">
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main-content">
+<div class="project-page">
+
+  <a href="index.html#projects" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+    Back to Projects
+  </a>
+
+  <div class="project-intro">
+    <h1>Mario Tennis GBC — Level-Up System RE</h1>
+    <p class="subtitle">Reverse engineered from the USA ROM</p>
+    <p>The four RPG characters (Alex, Harry, Nina, Kate) each have 11 substats shown on a 1-10 scale. On level-up you pick a category (Spin, Power, Control, Speed) to invest in. Stats are not stored directly; they are recomputed from your category investments and each character's hidden threshold table every time the game recalculates. The "stat decay" community players observe is a natural consequence of this formula, not a separate mechanic.</p>
+  </div>
+
+  <div class="tool-tabs" role="tablist">
+    <button class="tool-tab active" role="tab" aria-selected="true" data-panel="calc">Stat Calculator</button>
+    <button class="tool-tab" role="tab" aria-selected="false" data-panel="opt">Build Optimizer</button>
+    <button class="tool-tab" role="tab" aria-selected="false" data-panel="best">Character's Best</button>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div id="panel-calc" class="tool-panel active">
+
+    <div class="controls-row">
+      <div class="ctrl-group">
+        <label for="calc-char">Character</label>
+        <select id="calc-char">
+          <option value="alex">Alex</option>
+          <option value="harry">Harry</option>
+          <option value="nina">Nina</option>
+          <option value="kate">Kate</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label for="calc-racket">Racket</label>
+        <select id="calc-racket">
+          <option value="normal">Normal</option>
+          <option value="large">Large</option>
+          <option value="small">Small</option>
+          <option value="iron">Iron</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+          <option value="drive">Drive</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label for="calc-shoe">Shoes</label>
+        <select id="calc-shoe">
+          <option value="normal">Normal</option>
+          <option value="iron">Iron</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pts-row">
+      <div class="pts-group pts-spin">
+        <label for="calc-spin">Spin pts</label>
+        <input type="number" id="calc-spin" min="0" max="98" value="0">
+      </div>
+      <div class="pts-group pts-power">
+        <label for="calc-power">Power pts</label>
+        <input type="number" id="calc-power" min="0" max="98" value="0">
+      </div>
+      <div class="pts-group pts-ctrl">
+        <label for="calc-ctrl">Control pts</label>
+        <input type="number" id="calc-ctrl" min="0" max="98" value="0">
+      </div>
+      <div class="pts-group pts-speed">
+        <label for="calc-speed">Speed pts</label>
+        <input type="number" id="calc-speed" min="0" max="98" value="0">
+      </div>
+      <div class="level-badge" id="calc-level-badge">Level <span>1</span></div>
+    </div>
+
+    <div class="stat-table-wrap">
+      <table class="stat-table" id="calc-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Substat</th>
+            <th class="stat-bar-cell">Value</th>
+          </tr>
+        </thead>
+        <tbody id="calc-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="notes-block">
+      <strong>How it works:</strong> Each category's <em>intermediate</em> = (pts_in_category &times; 5) &minus; total_pts.
+      The displayed stat = 1 + (number of the character's 9 thresholds that the intermediate strictly exceeds).
+      Equipment bonuses apply after, clamped to [1, 10]. <strong>Yellow</strong> = maxed at 10.
+    </div>
+  </div>
+
+  <!-- OPTIMIZER -->
+  <div id="panel-opt" class="tool-panel">
+
+    <div class="optimizer-controls">
+      <div class="ctrl-group">
+        <label for="opt-char">Character</label>
+        <select id="opt-char">
+          <option value="alex">Alex</option>
+          <option value="harry">Harry</option>
+          <option value="nina">Nina</option>
+          <option value="kate">Kate</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label for="opt-racket">Racket</label>
+        <select id="opt-racket">
+          <option value="normal">Normal</option>
+          <option value="large">Large</option>
+          <option value="small">Small</option>
+          <option value="iron">Iron</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+          <option value="drive">Drive</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label for="opt-shoe">Shoes</label>
+        <select id="opt-shoe">
+          <option value="normal">Normal</option>
+          <option value="iron">Iron</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label for="opt-budget">Max level</label>
+        <input type="number" id="opt-budget" min="2" max="99" value="10" style="width:80px">
+      </div>
+      <button class="run-btn" id="opt-run">Find Best Build</button>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <p style="font-size:0.8rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Objective</p>
+      <div class="obj-row" id="obj-row">
+        <button class="obj-btn active" data-obj="sum">Max total stats</button>
+        <button class="obj-btn" data-obj="min">Max weakest stat</button>
+        <button class="obj-btn" data-obj="weighted">Weighted</button>
+      </div>
+    </div>
+
+    <div id="weights-section" style="display:none;">
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:.6rem;">Set priority weight per substat (0 = ignore, 10 = max priority):</p>
+      <div class="weights-grid" id="weights-grid"></div>
+    </div>
+
+    <div id="opt-result-area">
+      <div class="opt-empty">Configure options above and click <strong>Find Best Build</strong>.</div>
+    </div>
+
+    <div class="notes-block">
+      <strong>How it works:</strong> Exhaustive search over all point distributions (Spin, Power, Control, Speed) summing to max level − 1.
+      C(N+3, 3) combinations — at max level 50 that is ~23,000 combinations, instant in JS.
+      The optimizer finds the allocation that maximises your chosen objective.
+      <strong>Max total stats</strong> sums all 11 displayed values.
+      <strong>Max weakest stat</strong> maximises the minimum displayed value (balanced build).
+      <strong>Weighted</strong> uses per-substat weights you configure.
+    </div>
+  </div>
+
+  <!-- CHARACTER'S BEST -->
+  <div id="panel-best" class="tool-panel">
+
+    <p style="font-size:0.9rem;color:var(--muted);line-height:1.7;max-width:680px;margin-bottom:1.5rem;">
+      Best builds at max level (99) for every character, searched across all 21 equipment combinations (7 rackets &times; 3 shoes).
+      <strong style="color:var(--text)">Max Total Stats</strong> shows the build that maximises the sum of all 11 displayed values.
+      <strong style="color:var(--text)">Max Weakest Stat</strong> shows the build that maximises the lowest displayed stat — the most balanced option available.
+      Both total and weakest values are shown for every build.
+    </p>
+
+    <div id="best-result-area"></div>
+
+    <div class="notes-block" style="margin-top:2rem;">
+      Results are fixed at level 99 (98 points). Equipment is searched exhaustively — the combination shown is guaranteed optimal for that objective and character.
+    </div>
+  </div>
+
+</div>
+</main>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+var SUBSTATS = ['Top Spin','Slice','Serve','Stroke','Volley','Angle','Placement','Speed','Dash','Reaction','Stop'];
+var CATEGORIES = ['Spin','Spin','Power','Power','Power','Control','Control','Speed','Speed','Speed','Speed'];
+var CAT_CSS = {Spin:'cat-spin',Power:'cat-power',Control:'cat-control',Speed:'cat-speed'};
+
+var THRESHOLDS = {
+  alex: [
+    [2,5,8,11,13,16,19,23,28],
+    [4,7,10,13,15,18,21,25,30],
+    [3,8,11,15,18,22,26,31,38],
+    [-3,2,6,9,13,17,21,27,34],
+    [2,7,11,14,18,21,26,31,38],
+    [3,8,11,14,18,21,25,31,37],
+    [4,9,13,16,20,23,28,33,40],
+    [2,5,8,10,12,15,18,21,26],
+    [-6,-2,1,4,7,10,14,18,24],
+    [4,7,10,13,15,18,21,25,30],
+    [3,8,11,15,18,22,26,31,38]
+  ],
+  harry: [
+    [-3,2,6,10,14,18,23,29,36],
+    [2,8,12,16,20,24,29,35,42],
+    [-8,-2,3,8,12,17,23,29,38],
+    [1,7,11,15,19,24,29,35,43],
+    [3,9,14,18,22,27,32,39,47],
+    [-2,4,8,13,17,21,27,33,41],
+    [3,9,13,17,21,25,30,36,44],
+    [-4,3,9,14,19,24,31,38,48],
+    [2,9,14,19,24,29,35,43,52],
+    [3,9,13,17,21,26,31,37,45],
+    [6,14,20,26,32,38,45,54,65]
+  ],
+  nina: [
+    [4,8,11,14,17,20,24,28,34],
+    [3,7,9,12,15,17,21,25,30],
+    [5,10,14,17,21,25,29,35,42],
+    [3,7,10,13,16,20,23,28,34],
+    [2,6,9,12,15,18,22,26,32],
+    [2,6,9,12,15,17,21,25,31],
+    [-3,1,4,7,10,13,17,21,27],
+    [3,6,9,12,14,17,20,24,29],
+    [4,7,9,11,13,16,18,22,26],
+    [-4,1,5,9,13,16,21,27,34],
+    [2,6,10,13,16,20,24,29,35]
+  ],
+  kate: [
+    [2,8,12,16,20,24,29,35,42],
+    [-4,2,6,10,14,19,24,30,38],
+    [-2,4,9,14,18,23,29,35,44],
+    [4,10,14,18,22,27,32,38,46],
+    [2,7,11,15,19,22,27,33,40],
+    [-10,-2,4,10,16,21,29,37,48],
+    [2,8,12,16,20,24,29,35,42],
+    [3,9,14,18,22,27,32,39,47],
+    [-3,4,9,13,18,23,29,36,45],
+    [4,10,15,19,23,28,33,40,48],
+    [6,11,15,18,22,25,30,35,42]
+  ]
+};
+
+// equipment bonuses [TopSpin,Slice,Serve,Stroke,Volley,Angle,Placement,Speed,Dash,Reaction,Stop]
+var RACKET_BONUS = {
+  normal:  [0,0,0,0,0,0,0,0,0,0,0],
+  large:   [-2,-2,-1,-1,0,2,1,0,0,0,0],
+  small:   [1,1,2,1,0,-2,-2,0,0,0,0],
+  iron:    [0,0,-2,-2,-2,0,0,0,0,0,0],
+  gold:    [0,0,2,2,-1,-1,0,0,0,0,0],
+  silver:  [0,0,-1,-1,3,1,1,0,0,0,0],
+  drive:   [3,0,-2,-2,0,0,0,0,0,0,0]
+};
+var SHOE_BONUS = {
+  normal:  [0,0,0,0,0,0,0,0,0,0,0],
+  iron:    [0,0,0,0,0,0,0,-2,-2,-2,-2],
+  light:   [0,0,0,0,0,0,0,2,2,-2,-2]
+};
+
+// ── CORE FORMULA ────────────────────────────────────────────────────────────
+
+function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+function computeStats(char, spin, power, control, speed, racket, shoe) {
+  var total = spin + power + control + speed;
+  var catPts = [spin, power, control, speed]; // Spin=0,Power=1,Control=2,Speed=3
+  var catIdx = {Spin:0,Power:1,Control:2,Speed:3};
+  var rb = RACKET_BONUS[racket];
+  var sb = SHOE_BONUS[shoe];
+  var thresh = THRESHOLDS[char];
+  var result = [];
+
+  for (var i = 0; i < 11; i++) {
+    var ci = catIdx[CATEGORIES[i]];
+    var inter = clamp(catPts[ci] * 5 - total, -127, 127);
+    var count = 0;
+    for (var t = 0; t < 9; t++) {
+      if (inter > thresh[i][t]) count++;
+    }
+    var base = count;
+    var bonus = rb[i] + sb[i];
+    var final = clamp(base + bonus, 0, 9);
+    result.push(final + 1);
+  }
+  return result;
+}
+
+// ── CALCULATOR ──────────────────────────────────────────────────────────────
+
+function getCalcInputs() {
+  return {
+    char:    document.getElementById('calc-char').value,
+    spin:    parseInt(document.getElementById('calc-spin').value) || 0,
+    power:   parseInt(document.getElementById('calc-power').value) || 0,
+    ctrl:    parseInt(document.getElementById('calc-ctrl').value) || 0,
+    speed:   parseInt(document.getElementById('calc-speed').value) || 0,
+    racket:  document.getElementById('calc-racket').value,
+    shoe:    document.getElementById('calc-shoe').value
+  };
+}
+
+function renderCalc() {
+  var inp = getCalcInputs();
+  var total = inp.spin + inp.power + inp.ctrl + inp.speed;
+  document.querySelector('#calc-level-badge span').textContent = total + 1;
+
+  var stats = computeStats(inp.char, inp.spin, inp.power, inp.ctrl, inp.speed, inp.racket, inp.shoe);
+
+  var tbody = document.getElementById('calc-tbody');
+  var rows = '';
+  for (var i = 0; i < 11; i++) {
+    var v = stats[i];
+    var maxed = v === 10;
+    var barPct = (v / 10 * 100).toFixed(0);
+    var catCss = CAT_CSS[CATEGORIES[i]];
+    var rowCat = CATEGORIES[i].toLowerCase();
+    rows += '<tr class="row-' + rowCat + '">'
+      + '<td><span class="' + catCss + '">' + CATEGORIES[i] + '</span></td>'
+      + '<td class="sub-' + rowCat + '">' + SUBSTATS[i] + '</td>'
+      + '<td class="stat-bar-cell"><div class="stat-bar-wrap">'
+      +   '<div class="stat-bar-bg"><div class="stat-bar-fill' + (maxed ? ' maxed' : '') + '" style="width:' + barPct + '%"></div></div>'
+      +   '<span class="stat-val' + (maxed ? ' maxed' : '') + '">' + v + '</span>'
+      + '</div></td>'
+      + '</tr>';
+  }
+  tbody.innerHTML = rows;
+}
+
+document.querySelectorAll('#calc-char,#calc-racket,#calc-shoe,#calc-spin,#calc-power,#calc-ctrl,#calc-speed')
+  .forEach(function(el) { el.addEventListener('input', renderCalc); });
+
+// clamp point inputs on change
+['calc-spin','calc-power','calc-ctrl','calc-speed'].forEach(function(id) {
+  document.getElementById(id).addEventListener('change', function() {
+    var v = parseInt(this.value) || 0;
+    if (v < 0) this.value = 0;
+    if (v > 98) this.value = 98;
+    renderCalc();
+  });
+});
+
+// ── OPTIMIZER ───────────────────────────────────────────────────────────────
+
+var currentObj = 'sum';
+var weights = [1,1,1,1,1,1,1,1,1,1,1];
+
+// build weights sliders
+(function() {
+  var grid = document.getElementById('weights-grid');
+  var html = '';
+  for (var i = 0; i < 11; i++) {
+    html += '<div class="weight-item">'
+      + '<label>' + SUBSTATS[i] + '</label>'
+      + '<input type="range" min="0" max="10" value="1" data-idx="' + i + '">'
+      + '<div class="weight-val" id="wv-' + i + '">1</div>'
+      + '</div>';
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('input[type=range]').forEach(function(r) {
+    r.addEventListener('input', function() {
+      var idx = parseInt(this.dataset.idx);
+      weights[idx] = parseInt(this.value);
+      document.getElementById('wv-' + idx).textContent = this.value;
+    });
+  });
+}());
+
+document.querySelectorAll('.obj-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.obj-btn').forEach(function(b) { b.classList.remove('active'); });
+    this.classList.add('active');
+    currentObj = this.dataset.obj;
+    document.getElementById('weights-section').style.display = currentObj === 'weighted' ? 'block' : 'none';
+  });
+});
+
+function score(stats) {
+  if (currentObj === 'sum') {
+    var s = 0; for (var i = 0; i < 11; i++) s += stats[i]; return s;
+  }
+  if (currentObj === 'min') {
+    var m = 99; for (var i = 0; i < 11; i++) if (stats[i] < m) m = stats[i]; return m;
+  }
+  // weighted
+  var s = 0; for (var i = 0; i < 11; i++) s += stats[i] * weights[i]; return s;
+}
+
+document.getElementById('opt-run').addEventListener('click', function() {
+  var char   = document.getElementById('opt-char').value;
+  var racket = document.getElementById('opt-racket').value;
+  var shoe   = document.getElementById('opt-shoe').value;
+  var lvl = Math.max(2, Math.min(99, parseInt(document.getElementById('opt-budget').value) || 2));
+  var N   = lvl - 1;
+
+  var bestScore = -Infinity;
+  var bestAlloc = [0,0,0,0];
+  var bestStats = null;
+
+  for (var sp = 0; sp <= N; sp++) {
+    for (var pw = 0; pw <= N - sp; pw++) {
+      for (var ct = 0; ct <= N - sp - pw; ct++) {
+        var sd = N - sp - pw - ct;
+        var st = computeStats(char, sp, pw, ct, sd, racket, shoe);
+        var sc = score(st);
+        if (sc > bestScore) {
+          bestScore = sc;
+          bestAlloc = [sp, pw, ct, sd];
+          bestStats = st;
+        }
+      }
+    }
+  }
+
+  renderOptResult(bestAlloc, bestStats, lvl);
+});
+
+function deltaStr(v, base) {
+  if (base === undefined) return '';
+  var d = v - base;
+  if (d > 0) return '<span style="color:#34d399;font-size:.75rem"> +' + d + '</span>';
+  if (d < 0) return '<span style="color:#f87171;font-size:.75rem"> ' + d + '</span>';
+  return '';
+}
+
+function renderOptResult(alloc, stats, level) {
+  var area = document.getElementById('opt-result-area');
+  var catNames = ['Spin','Power','Control','Speed'];
+  var catCss = ['cat-spin','cat-power','cat-control','cat-speed'];
+
+  var allocHtml = '';
+  for (var c = 0; c < 4; c++) {
+    allocHtml += '<div class="alloc-item">'
+      + '<span class="alloc-label ' + catCss[c] + '">' + catNames[c] + '</span>'
+      + '<span class="alloc-val">' + alloc[c] + ' pts</span>'
+      + '</div>';
+  }
+  allocHtml += '<div class="alloc-item">'
+    + '<span class="alloc-label">Level</span>'
+    + '<span class="alloc-val">' + level + '</span>'
+    + '</div>';
+
+  var totalSum = 0, weakestStat = 99;
+  for (var i = 0; i < 11; i++) {
+    totalSum += stats[i];
+    if (stats[i] < weakestStat) weakestStat = stats[i];
+  }
+
+  var rows = '';
+  for (var i = 0; i < 11; i++) {
+    var v = stats[i];
+    var maxed = v === 10;
+    var barPct = (v / 10 * 100).toFixed(0);
+    var catCssS = CAT_CSS[CATEGORIES[i]];
+    var rowCat2 = CATEGORIES[i].toLowerCase();
+    rows += '<tr class="row-' + rowCat2 + '">'
+      + '<td><span class="' + catCssS + '">' + CATEGORIES[i] + '</span></td>'
+      + '<td class="sub-' + rowCat2 + '">' + SUBSTATS[i] + '</td>'
+      + '<td class="stat-bar-cell"><div class="stat-bar-wrap">'
+      +   '<div class="stat-bar-bg"><div class="stat-bar-fill' + (maxed ? ' maxed' : '') + '" style="width:' + barPct + '%"></div></div>'
+      +   '<span class="stat-val' + (maxed ? ' maxed' : '') + '">' + v + '</span>'
+      + '</div></td>'
+      + '</tr>';
+  }
+
+  area.innerHTML = '<div class="opt-result">'
+    + '<div class="opt-result-header">'
+    +   '<h3>Best Allocation</h3>'
+    +   '<span style="font-family:var(--mono);font-size:.8rem;color:var(--muted)">'
+    +     'Total: <strong style="color:var(--text)">' + totalSum + ' / 110</strong>'
+    +     ' &nbsp;·&nbsp; Weakest: <strong style="color:var(--text)">' + weakestStat + '</strong>'
+    +   '</span>'
+    + '</div>'
+    + '<div class="opt-allocation">' + allocHtml + '</div>'
+    + '</div>'
+    + '<div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Category</th><th>Substat</th><th class="stat-bar-cell">Value</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody></table></div>';
+}
+
+// ── CHARACTER'S BEST ─────────────────────────────────────────────────────────
+
+var RACKET_NAMES = { normal:'Normal', large:'Large', small:'Small', iron:'Iron', gold:'Gold', silver:'Silver', drive:'Drive' };
+var SHOE_NAMES   = { normal:'Normal', iron:'Iron', light:'Light' };
+
+function renderBestResults(allResults, chars) {
+  var area      = document.getElementById('best-result-area');
+  var catCssArr = ['cat-spin','cat-power','cat-control','cat-speed'];
+  var catLabels = ['Spin','Power','Control','Speed'];
+
+  function makeCard(title, d) {
+    var allocParts = '';
+    for (var c = 0; c < 4; c++) {
+      if (c > 0) allocParts += '<span style="color:var(--muted)"> · </span>';
+      allocParts += '<span class="' + catCssArr[c] + '">' + catLabels[c] + ':' + d.alloc[c] + '</span>';
+    }
+    var totalSc = 0, minSc = 99;
+    for (var ii = 0; ii < 11; ii++) {
+      totalSc += d.stats[ii];
+      if (d.stats[ii] < minSc) minSc = d.stats[ii];
+    }
+    var statRows = '';
+    for (var si = 0; si < 11; si++) {
+      var v = d.stats[si], maxed = v === 10;
+      var rowCat = CATEGORIES[si].toLowerCase();
+      statRows += '<tr class="row-' + rowCat + '">'
+        + '<td><span class="cat-' + rowCat + '" style="font-size:.75rem">' + CATEGORIES[si] + '</span></td>'
+        + '<td class="sub-' + rowCat + '" style="font-size:.8rem">' + SUBSTATS[si] + '</td>'
+        + '<td class="stat-bar-cell"><div class="stat-bar-wrap">'
+        +   '<div class="stat-bar-bg"><div class="stat-bar-fill' + (maxed ? ' maxed' : '') + '" style="width:' + (v*10) + '%"></div></div>'
+        +   '<span class="stat-val' + (maxed ? ' maxed' : '') + '">' + v + '</span>'
+        + '</div></td></tr>';
+    }
+    return '<div class="char-best-card">'
+      + '<h4>' + title + '</h4>'
+      + '<div class="char-best-equip">' + RACKET_NAMES[d.racket] + ' racket · ' + SHOE_NAMES[d.shoe] + ' shoes</div>'
+      + '<div class="char-best-alloc">' + allocParts + '</div>'
+      + '<div class="char-best-score">Total: ' + totalSc + ' / 110 &nbsp;·&nbsp; Weakest: ' + minSc + '</div>'
+      + '<div class="stat-table-wrap"><table class="stat-table"><tbody>' + statRows + '</tbody></table></div>'
+      + '</div>';
+  }
+
+  var html = '';
+  for (var ci = 0; ci < chars.length; ci++) {
+    var key = chars[ci];
+    var res = allResults[key];
+    html += '<div class="char-best-section">'
+      + '<h3>' + res.name + '</h3>'
+      + '<div class="char-best-cols">'
+      + makeCard('Max Total Stats', res.sum)
+      + makeCard('Max Weakest Stat', res.min)
+      + '</div></div>';
+  }
+  area.innerHTML = html;
+}
+
+// pre-compute on load
+(function() {
+  var chars      = ['alex','harry','nina','kate'];
+  var charNames  = { alex:'Alex', harry:'Harry', nina:'Nina', kate:'Kate' };
+  var racketKeys = ['normal','large','small','iron','gold','silver','drive'];
+  var shoeKeys   = ['normal','iron','light'];
+  var N          = 98;
+  var CAT_OF     = [0,0,1,1,1,2,2,3,3,3,3];
+  var allResults = {};
+  var base = new Array(11);
+  var st   = new Array(11);
+
+  for (var ci = 0; ci < chars.length; ci++) {
+    var charKey = chars[ci];
+    var thresh  = THRESHOLDS[charKey];
+    var bestSum = { score: -Infinity };
+    var bestMin = { score: -Infinity };
+
+    for (var sp = 0; sp <= N; sp++) {
+      for (var pw = 0; pw <= N - sp; pw++) {
+        for (var ct = 0; ct <= N - sp - pw; ct++) {
+          var sd  = N - sp - pw - ct;
+          var cpt = [sp, pw, ct, sd];
+
+          for (var ii = 0; ii < 11; ii++) {
+            var inter = cpt[CAT_OF[ii]] * 5 - N;
+            if (inter < -127) inter = -127; else if (inter > 127) inter = 127;
+            var tt = thresh[ii], cnt = 0;
+            if (inter > tt[0]) cnt++;
+            if (inter > tt[1]) cnt++;
+            if (inter > tt[2]) cnt++;
+            if (inter > tt[3]) cnt++;
+            if (inter > tt[4]) cnt++;
+            if (inter > tt[5]) cnt++;
+            if (inter > tt[6]) cnt++;
+            if (inter > tt[7]) cnt++;
+            if (inter > tt[8]) cnt++;
+            base[ii] = cnt;
+          }
+
+          for (var ri = 0; ri < racketKeys.length; ri++) {
+            var rb = RACKET_BONUS[racketKeys[ri]];
+            for (var si = 0; si < shoeKeys.length; si++) {
+              var sb = SHOE_BONUS[shoeKeys[si]];
+              var sumSc = 0, minSc = 99, f;
+              for (var ii = 0; ii < 11; ii++) {
+                f = base[ii] + rb[ii] + sb[ii];
+                if (f < 0) f = 0; else if (f > 9) f = 9;
+                st[ii] = f + 1;
+                sumSc += st[ii];
+                if (st[ii] < minSc) minSc = st[ii];
+              }
+              if (sumSc > bestSum.score) {
+                bestSum = { score: sumSc, racket: racketKeys[ri], shoe: shoeKeys[si], alloc: [sp,pw,ct,sd], stats: st.slice() };
+              }
+              if (minSc > bestMin.score) {
+                bestMin = { score: minSc, racket: racketKeys[ri], shoe: shoeKeys[si], alloc: [sp,pw,ct,sd], stats: st.slice() };
+              }
+            }
+          }
+        }
+      }
+    }
+    allResults[charKey] = { sum: bestSum, min: bestMin, name: charNames[charKey] };
+  }
+
+  renderBestResults(allResults, chars);
+}());
+
+// ── TABS ────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.tool-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tool-tab').forEach(function(t) {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected','false');
+    });
+    document.querySelectorAll('.tool-panel').forEach(function(p) { p.classList.remove('active'); });
+    this.classList.add('active');
+    this.setAttribute('aria-selected','true');
+    document.getElementById('panel-' + this.dataset.panel).classList.add('active');
+  });
+});
+
+// ── THEME & NAV ─────────────────────────────────────────────────────────────
+
+function isDark() {
+  return document.documentElement.classList.contains('dark') ||
+    (!document.documentElement.classList.contains('light') &&
+     window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function updateThemeButton() {
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  var dark = isDark();
+  btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  var sun = btn.querySelector('.icon-sun');
+  var moon = btn.querySelector('.icon-moon');
+  sun.classList.toggle('icon-current', dark);
+  sun.classList.toggle('icon-other', !dark);
+  moon.classList.toggle('icon-current', !dark);
+  moon.classList.toggle('icon-other', dark);
+}
+function toggleTheme() {
+  var dark = isDark();
+  document.documentElement.classList.remove('dark','light');
+  document.documentElement.classList.add(dark ? 'light' : 'dark');
+  localStorage.setItem('theme', dark ? 'light' : 'dark');
+  updateThemeButton();
+}
+function closeMenu() {
+  var menu = document.getElementById('mobile-menu');
+  var burger = document.getElementById('burger');
+  if (menu) menu.hidden = true;
+  if (burger) { burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-label','Open navigation menu'); }
+}
+function toggleMenu() {
+  var menu = document.getElementById('mobile-menu');
+  var burger = document.getElementById('burger');
+  var willOpen = menu.hidden;
+  menu.hidden = !willOpen;
+  burger.setAttribute('aria-expanded', String(willOpen));
+  burger.setAttribute('aria-label', willOpen ? 'Close navigation menu' : 'Open navigation menu');
+}
+
+document.getElementById('theme-toggle').addEventListener('click', function(e) {
+  toggleTheme(); if (e.detail > 0) this.blur();
+});
+document.getElementById('burger').addEventListener('click', function(e) {
+  toggleMenu(); if (e.detail > 0) this.blur();
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+  if (!localStorage.getItem('theme')) updateThemeButton();
+});
+updateThemeButton();
+
+// Initial render
+renderCalc();
+</script>
+
+</body>
+</html>
